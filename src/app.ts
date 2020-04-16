@@ -6,6 +6,7 @@ import FileCookieStore from 'tough-cookie-file-store';
 import { config } from './config';
 import { fetchLectureInformation, LectureInformation } from './kit-ead-portal';
 import { KitShibbolethProxy } from './kit-shibboleth';
+import { sleep } from './utils/sleep';
 
 const loadState = async () => {
   if (!existsSync(config.stateFile.lecture)) return [];
@@ -95,26 +96,31 @@ const notifyLecture = async (info: LectureInformation) => {
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.92 Safari/537.36',
     store,
   );
-  await kit.loginTo('https://portal.student.kit.ac.jp');
 
-  const stateHash = await loadState();
+  for (;;) {
+    await kit.loginTo('https://portal.student.kit.ac.jp');
 
-  const res = await fetchLectureInformation(kit);
+    const stateHash = await loadState();
 
-  const resHash = calcHashes(res);
-  const lastIndex = resHash.findIndex((itemHash) =>
-    stateHash.includes(itemHash),
-  );
-  if (lastIndex === -1) {
-    console.log('reset');
-  } else {
-    console.log('notify', lastIndex);
-    for (const item of res.slice(0, lastIndex)) {
-      await notifyLecture(item);
+    const res = await fetchLectureInformation(kit);
+
+    const resHash = calcHashes(res);
+    const lastIndex = resHash.findIndex((itemHash) =>
+      stateHash.includes(itemHash),
+    );
+    if (lastIndex === -1) {
+      console.log('reset');
+    } else {
+      console.log('notify', lastIndex);
+      for (const item of res.slice(0, lastIndex)) {
+        await notifyLecture(item);
+      }
     }
-  }
 
-  await fs.writeFile(config.stateFile.lecture, JSON.stringify(resHash), {
-    encoding: 'utf8',
-  });
+    await fs.writeFile(config.stateFile.lecture, JSON.stringify(resHash), {
+      encoding: 'utf8',
+    });
+
+    await sleep(1000 * 60 * 10);
+  }
 })();
