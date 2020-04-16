@@ -1,0 +1,10 @@
+node_modules/
+bin/
+coverage/
+.DS_Store
+.env
+cookies.txt
+graphql-generated.ts
+cache
+cookies.json
+state-*.json
