@@ -112,7 +112,7 @@ const notifyLecture = async (info: LectureInformation) => {
       console.log('reset');
     } else {
       console.log('notify', lastIndex);
-      for (const item of res.slice(0, lastIndex)) {
+      for (const item of res.slice(0, lastIndex).reverse()) {
         await notifyLecture(item);
       }
     }
