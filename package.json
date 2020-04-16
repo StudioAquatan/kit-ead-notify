@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "scripts": {
+    "build": "tsc -p .",
+    "start": "node ./bin/app.js"
+  },
   "devDependencies": {
     "@types/jsdom": "^16.2.1",
     "@types/node-fetch": "^2.5.6",

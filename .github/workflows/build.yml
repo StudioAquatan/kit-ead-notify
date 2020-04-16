@@ -1,0 +1,22 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        ref: ${{ github.base_ref }}
+    - name: Docker Login
+      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+    - name: Docker build
+      run: |
+        IMAGE_ID=`echo "docker.pkg.github.com/${{ github.repository }}" | tr '[A-Z]' '[a-z]'`
+        echo Target ImageID: $IMAGE_ID
+        docker build . --tag $IMAGE_ID/kit-ead-notify:latest
+        docker push $IMAGE_ID/kit-ead-notify:latest
