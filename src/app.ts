@@ -113,7 +113,13 @@ const notifyLecture = async (info: LectureInformation) => {
     } else {
       console.log('notify', lastIndex);
       for (const item of res.slice(0, lastIndex).reverse()) {
-        await notifyLecture(item);
+        try {
+          await notifyLecture(item);
+          await sleep(5000);
+        } catch (e) {
+          console.error(e);
+          break;
+        }
       }
     }
 
