@@ -1,0 +1,77 @@
+import {
+  BaseEntity,
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { LectureInformation } from '../kit-ead-portal';
+
+@Entity()
+export class LectureInfoEntity extends BaseEntity {
+  @PrimaryGeneratedColumn('increment')
+  public id = 0;
+
+  @Column('varchar', { length: 16 })
+  public faculty = '';
+
+  @Column('varchar', { length: 8 })
+  public semester = '';
+
+  @Column('varchar', { length: 128 })
+  public subject: string | null = '';
+
+  @Column('varchar', { length: 128 })
+  public teacher: string | null = '';
+
+  @Column('varchar', { length: 8 })
+  public day: string | null = '';
+
+  @Column('varchar', { length: 8 })
+  public hour: string | null = '';
+
+  @Column('varchar', { length: 16 })
+  public category = '';
+
+  @Column('text')
+  public content = '';
+
+  @Column('date')
+  public createdAt = new Date();
+
+  @Column('date')
+  public updatedAt = new Date();
+
+  @CreateDateColumn()
+  public firstSeen: Date | null = null;
+
+  public static createFromResponse(
+    item: LectureInformation,
+  ): LectureInfoEntity {
+    const parsedCreatedDate = new Date(item.createdAt);
+    const parsedUpdatedDate = new Date(item.updatedAt);
+
+    return LectureInfoEntity.create({
+      ...item,
+      createdAt: parsedCreatedDate,
+      updatedAt: parsedUpdatedDate,
+    });
+  }
+
+  public static findSameEntity(item: LectureInformation) {
+    const parsedCreatedDate = new Date(item.createdAt);
+
+    return LectureInfoEntity.findOne({
+      where: {
+        faculty: item.faculty,
+        semester: item.semester,
+        subject: item.subject,
+        teacher: item.teacher,
+        day: item.day,
+        hour: item.hour,
+        category: item.category,
+        createdAt: parsedCreatedDate,
+      },
+    });
+  }
+}

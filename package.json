@@ -23,6 +23,7 @@
     "jsdom": "^16.2.2",
     "node-fetch": "^2.6.0",
     "tough-cookie": "^2.3.3",
-    "tough-cookie-file-store": "^1.2.0"
+    "tough-cookie-file-store": "^1.2.0",
+    "typeorm": "^0.2.25"
   }
 }
