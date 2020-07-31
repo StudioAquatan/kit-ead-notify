@@ -54,21 +54,24 @@ export const notifyLecture = async (info: LectureInfoEntity) => {
 
 export const notifyNotification = async (info: NotificationEntity) => {
   const publishedAt = DateTime.fromJSDate(info.publishedAt);
+  const embed: Record<string, unknown> = {
+    title: `[${info.category}] ${info.title}`,
+    author: {
+      name: '学生情報ポータル',
+    },
+    description: info.description,
+    footer: {
+      text: `${publishedAt.toFormat('yyyy/MM/dd')}`,
+    },
+  };
+
+  if (info.url) {
+    embed.url = info.url;
+  }
   const res = await fetch(config.webhook.lecture, {
     method: 'POST',
     body: JSON.stringify({
-      embeds: [
-        {
-          title: `[${info.category}] ${info.title}`,
-          author: {
-            name: '学生情報ポータル',
-          },
-          description: info.description,
-          footer: {
-            text: `${publishedAt.toFormat('yyyy/MM/dd')}`,
-          },
-        },
-      ],
+      embeds: [embed],
     }),
     headers: {
       'Content-Type': 'application/json',
