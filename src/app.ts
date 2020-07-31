@@ -2,7 +2,7 @@ import { Store } from 'tough-cookie';
 import FileCookieStore from 'tough-cookie-file-store';
 import { notifyLecture, notifyNotification } from './bot';
 import { config } from './config';
-import { LectureInfoEntity, NotificationEntity } from './database';
+import { connect, LectureInfoEntity, NotificationEntity } from './database';
 import { fetchLectureInformation, fetchNotifications } from './kit-ead-portal';
 import { KitShibbolethProxy } from './kit-shibboleth';
 import { sleep } from './utils/sleep';
@@ -65,6 +65,8 @@ const updateNotificationAndNotify = async (proxy: KitShibbolethProxy) => {
 };
 
 (async () => {
+  await connect();
+
   const store = (new FileCookieStore('cookies.json') as unknown) as Store;
 
   const kit = new KitShibbolethProxy(
