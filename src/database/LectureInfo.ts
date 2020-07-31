@@ -55,6 +55,7 @@ export class LectureInfoEntity extends BaseEntity {
       ...item,
       createdAt: parsedCreatedDate,
       updatedAt: parsedUpdatedDate,
+      firstSeen: new Date(),
     });
   }
 

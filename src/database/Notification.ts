@@ -41,6 +41,7 @@ export class NotificationEntity extends BaseEntity {
       title: item.title,
       description: item.description || '',
       url: item.url || null,
+      firstSeen: new Date(),
     });
   }
 
