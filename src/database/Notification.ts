@@ -2,10 +2,12 @@ import {
   BaseEntity,
   Column,
   CreateDateColumn,
+  Entity,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { NotificationItem } from '../kit-ead-portal';
 
+@Entity()
 export class NotificationEntity extends BaseEntity {
   @PrimaryGeneratedColumn('increment')
   public id = 0;
