@@ -16,8 +16,7 @@ const updateLectureInfoAndNotify = async (proxy: KitShibbolethProxy) => {
     let isNew = false;
 
     if (entity) {
-      entity.merge(info);
-      isNew = true;
+      isNew = entity.merge(info);
     } else {
       entity = LectureInfoEntity.createFromResponse(info);
       isNew = true;
