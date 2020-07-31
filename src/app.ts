@@ -1,92 +1,69 @@
-import { createHash } from 'crypto';
-import { existsSync, promises as fs } from 'fs';
-import fetch from 'node-fetch';
 import { Store } from 'tough-cookie';
 import FileCookieStore from 'tough-cookie-file-store';
+import { notifyLecture, notifyNotification } from './bot';
 import { config } from './config';
-import { fetchLectureInformation, LectureInformation } from './kit-ead-portal';
+import { LectureInfoEntity, NotificationEntity } from './database';
+import { fetchLectureInformation, fetchNotifications } from './kit-ead-portal';
 import { KitShibbolethProxy } from './kit-shibboleth';
 import { sleep } from './utils/sleep';
 
-const loadState = async () => {
-  if (!existsSync(config.stateFile.lecture)) return [];
+const updateLectureInfoAndNotify = async (proxy: KitShibbolethProxy) => {
+  const data = await fetchLectureInformation(proxy);
+  const dbCount = await LectureInfoEntity.count();
 
-  const content = await fs.readFile(config.stateFile.lecture, {
-    encoding: 'utf8',
-  });
+  for (const info of data) {
+    let entity = await LectureInfoEntity.findSameEntity(info);
+    let isNew = false;
 
-  try {
-    return JSON.parse(content) as string[];
-  } catch (e) {
-    return [];
+    if (entity) {
+      entity.merge(info);
+      isNew = true;
+    } else {
+      entity = LectureInfoEntity.createFromResponse(info);
+      isNew = true;
+    }
+
+    await entity.save();
+
+    if (isNew && dbCount > 0) {
+      try {
+        await notifyLecture(entity);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        await sleep(5000);
+      }
+    }
   }
 };
 
-const calcHashes = (info: LectureInformation[]) => {
-  return info.map((item) =>
-    createHash('sha256')
-      .update(
-        [
-          item.faculty,
-          item.semester,
-          item.subject,
-          item.teacher,
-          item.day,
-          item.hour,
-          item.category,
-          item.content,
-          item.createdAt,
-          item.updatedAt,
-        ].join(''),
-      )
-      .digest('hex'),
-  );
-};
+const updateNotificationAndNotify = async (proxy: KitShibbolethProxy) => {
+  const data = await fetchNotifications(proxy);
+  const dbCount = await NotificationEntity.count();
 
-const notifyLecture = async (info: LectureInformation) => {
-  const res = await fetch(config.webhook.lecture, {
-    method: 'POST',
-    body: JSON.stringify({
-      embeds: [
-        {
-          title: `[${info.category}] ${info.subject}`,
-          author: {
-            name: '授業連絡',
-          },
-          description: info.content,
-          fields: [
-            {
-              name: '学部・学期',
-              value: `${info.faculty} ${info.semester}`,
-              inline: true,
-            },
-            {
-              name: '時限',
-              value: `${info.day || '不明'}${
-                info.hour ? info.hour + '限' : ''
-              }`,
-              inline: true,
-            },
-            {
-              name: '教員',
-              value: info.teacher,
-              inline: true,
-            },
-          ],
-          footer: {
-            text: `更新:${info.updatedAt} 作成:${info.createdAt}`,
-          },
-        },
-      ],
-    }),
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-  if (!res.ok) {
-    throw new Error('failed to call hook');
+  for (const info of data) {
+    let entity = await NotificationEntity.findSameEntity(info);
+    let isNew = false;
+
+    if (!entity) {
+      entity = NotificationEntity.createFromResponse(info);
+      isNew = true;
+    }
+
+    await entity.save();
+
+    if (isNew && dbCount > 0) {
+      try {
+        await notifyNotification(entity);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        await sleep(5000);
+      }
+    }
   }
 };
+
 (async () => {
   const store = (new FileCookieStore('cookies.json') as unknown) as Store;
 
@@ -100,33 +77,13 @@ const notifyLecture = async (info: LectureInformation) => {
   for (;;) {
     await kit.loginTo('https://portal.student.kit.ac.jp');
 
-    const stateHash = await loadState();
-
-    const res = await fetchLectureInformation(kit);
-
-    const resHash = calcHashes(res);
-    const lastIndex = resHash.findIndex((itemHash) =>
-      stateHash.includes(itemHash),
-    );
-    if (lastIndex === -1) {
-      console.log('reset');
-    } else {
-      console.log('notify', lastIndex);
-      for (const item of res.slice(0, lastIndex).reverse()) {
-        try {
-          await notifyLecture(item);
-          await sleep(5000);
-        } catch (e) {
-          console.error(e);
-          break;
-        }
-      }
+    try {
+      await updateLectureInfoAndNotify(kit);
+      await updateNotificationAndNotify(kit);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      await sleep(1000 * 60 * 10);
     }
-
-    await fs.writeFile(config.stateFile.lecture, JSON.stringify(resHash), {
-      encoding: 'utf8',
-    });
-
-    await sleep(1000 * 60 * 10);
   }
 })();

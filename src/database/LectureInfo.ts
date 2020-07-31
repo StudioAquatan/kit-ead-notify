@@ -74,4 +74,21 @@ export class LectureInfoEntity extends BaseEntity {
       },
     });
   }
+
+  public merge(item: LectureInformation) {
+    const parsedUpdatedDate = new Date(item.updatedAt);
+
+    let modified = false;
+    if (parsedUpdatedDate.getTime() !== this.updatedAt.getTime()) {
+      this.updatedAt = parsedUpdatedDate;
+      modified = true;
+    }
+
+    if (this.content !== item.content) {
+      this.content = item.content;
+      modified = true;
+    }
+
+    return modified;
+  }
 }
