@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon';
 import {
   BaseEntity,
   Column,
@@ -13,7 +14,7 @@ export class NotificationEntity extends BaseEntity {
   public id = 0;
 
   @Column('date')
-  public publishedAt = new Date();
+  public publishedAt = '0000-00-00';
 
   @Column('varchar', { length: 32 })
   public source = '';
@@ -34,10 +35,11 @@ export class NotificationEntity extends BaseEntity {
   public firstSeen: Date | null = null;
 
   public static createFromResponse(item: NotificationItem): NotificationEntity {
-    const parsedDate = new Date(item.date.replace(/\./g, '/'));
+    const parsedDate = DateTime.fromString(item.date, 'yyyy.M.d');
+    if (!parsedDate.isValid) throw new Error('invalid date');
 
     return NotificationEntity.create({
-      publishedAt: parsedDate,
+      publishedAt: parsedDate.toFormat('yyyy-MM-dd'),
       source: item.source,
       category: item.category,
       title: item.title,
@@ -48,11 +50,12 @@ export class NotificationEntity extends BaseEntity {
   }
 
   public static findSameEntity(item: NotificationItem) {
-    const parsedDate = new Date(item.date.replace(/\./g, '/'));
+    const parsedDate = DateTime.fromString(item.date, 'yyyy.M.d');
+    if (!parsedDate.isValid) throw new Error('invalid date');
 
     return NotificationEntity.findOne({
       where: {
-        publishedAt: parsedDate,
+        publishedAt: parsedDate.toFormat('yyyy-MM-dd'),
         source: item.source,
         category: item.category,
         title: item.title,

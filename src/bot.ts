@@ -4,8 +4,8 @@ import { config } from './config';
 import { LectureInfoEntity, NotificationEntity } from './database';
 
 export const notifyLecture = async (info: LectureInfoEntity) => {
-  const updatedAt = DateTime.fromJSDate(info.updatedAt);
-  const createdAt = DateTime.fromJSDate(info.createdAt);
+  const updatedAt = DateTime.fromString(info.updatedAt, 'yyyy-MM-dd');
+  const createdAt = DateTime.fromString(info.createdAt, 'yyyy-MM-dd');
   const res = await fetch(config.webhook.lecture, {
     method: 'POST',
     body: JSON.stringify({
@@ -53,7 +53,7 @@ export const notifyLecture = async (info: LectureInfoEntity) => {
 };
 
 export const notifyNotification = async (info: NotificationEntity) => {
-  const publishedAt = DateTime.fromJSDate(info.publishedAt);
+  const publishedAt = DateTime.fromString(info.publishedAt, 'yyyy-MM-dd');
   const embed: Record<string, unknown> = {
     title: `[${info.category}] ${info.title}`,
     author: {

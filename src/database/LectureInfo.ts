@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon';
 import {
   BaseEntity,
   Column,
@@ -37,10 +38,10 @@ export class LectureInfoEntity extends BaseEntity {
   public content = '';
 
   @Column('date')
-  public createdAt = new Date();
+  public createdAt = '0000-00-00';
 
   @Column('date')
-  public updatedAt = new Date();
+  public updatedAt = '0000-00-00';
 
   @CreateDateColumn()
   public firstSeen: Date | null = null;
@@ -48,19 +49,23 @@ export class LectureInfoEntity extends BaseEntity {
   public static createFromResponse(
     item: LectureInformation,
   ): LectureInfoEntity {
-    const parsedCreatedDate = new Date(item.createdAt);
-    const parsedUpdatedDate = new Date(item.updatedAt);
+    const parsedCreatedDate = DateTime.fromString(item.createdAt, 'yyyy/M/d');
+    if (!parsedCreatedDate.isValid) throw new Error('invalid created date');
+
+    const parsedUpdatedDate = DateTime.fromString(item.updatedAt, 'yyyy/M/d');
+    if (!parsedUpdatedDate.isValid) throw new Error('invalid updated date');
 
     return LectureInfoEntity.create({
       ...item,
-      createdAt: parsedCreatedDate,
-      updatedAt: parsedUpdatedDate,
+      createdAt: parsedCreatedDate.toFormat('yyyy-MM-dd'),
+      updatedAt: parsedUpdatedDate.toFormat('yyyy-MM-dd'),
       firstSeen: new Date(),
     });
   }
 
   public static findSameEntity(item: LectureInformation) {
-    const parsedCreatedDate = new Date(item.createdAt);
+    const parsedCreatedDate = DateTime.fromString(item.createdAt, 'yyyy/M/d');
+    if (!parsedCreatedDate.isValid) throw new Error('invalid created date');
 
     return LectureInfoEntity.findOne({
       where: {
@@ -71,17 +76,20 @@ export class LectureInfoEntity extends BaseEntity {
         day: item.day,
         hour: item.hour,
         category: item.category,
-        createdAt: parsedCreatedDate,
+        createdAt: parsedCreatedDate.toFormat('yyyy-MM-dd'),
       },
     });
   }
 
   public merge(item: LectureInformation) {
-    const parsedUpdatedDate = new Date(item.updatedAt);
+    const parsedUpdatedDate = DateTime.fromString(item.updatedAt, 'yyyy/M/d');
+    if (!parsedUpdatedDate.isValid) throw new Error('invalid updated date');
+
+    const updatedAt = DateTime.fromString(this.updatedAt, 'yyyy-MM-dd');
 
     let modified = false;
-    if (parsedUpdatedDate.getTime() !== this.updatedAt.getTime()) {
-      this.updatedAt = parsedUpdatedDate;
+    if (!updatedAt.hasSame(parsedUpdatedDate, 'day')) {
+      this.updatedAt = parsedUpdatedDate.toFormat('yyyy-MM-dd');
       modified = true;
     }
 
