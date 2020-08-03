@@ -11,7 +11,7 @@ const updateLectureInfoAndNotify = async (proxy: KitShibbolethProxy) => {
   const data = await fetchLectureInformation(proxy);
   const dbCount = await LectureInfoEntity.count();
 
-  for (const info of data) {
+  for (const info of data.reverse()) {
     let entity = await LectureInfoEntity.findSameEntity(info);
     let isNew = false;
 
@@ -38,7 +38,7 @@ const updateNotificationAndNotify = async (proxy: KitShibbolethProxy) => {
   const data = await fetchNotifications(proxy);
   const dbCount = await NotificationEntity.count();
 
-  for (const info of data) {
+  for (const info of data.reverse()) {
     let entity = await NotificationEntity.findSameEntity(info);
     let isNew = false;
 
