@@ -35,16 +35,18 @@ export const fetchLectureInformation = async (proxy: KitShibbolethProxy) => {
         ?.querySelectorAll('tr[class*="gen_tbl1"]'),
     )
     .map((row) => ({
-      faculty: row.children.item(1)?.textContent?.replace(/^-$/, ''),
-      semester: row.children.item(2)?.textContent?.replace(/^-$/, ''),
-      subject: row.children.item(3)?.textContent?.replace(/^-$/, ''),
-      teacher: row.children.item(4)?.textContent?.replace(/^-$/, '') || null,
-      day: row.children.item(5)?.textContent?.replace(/^-$/, '') || null,
-      hour: row.children.item(6)?.textContent?.replace(/^-$/, '') || null,
-      category: row.children.item(7)?.textContent?.replace(/^-$/, ''),
-      createdAt: row.children.item(9)?.textContent?.replace(/^-$/, ''),
-      updatedAt: row.children.item(10)?.textContent?.replace(/^-$/, ''),
-      content: convertNodesToMDText(row.children.item(8)?.childNodes),
+      faculty: row.children.item(1)?.textContent?.replace(/^-$/, '').trim(),
+      semester: row.children.item(2)?.textContent?.replace(/^-$/, '').trim(),
+      subject: row.children.item(3)?.textContent?.replace(/^-$/, '').trim(),
+      teacher:
+        row.children.item(4)?.textContent?.replace(/^-$/, '').trim() || null,
+      day: row.children.item(5)?.textContent?.replace(/^-$/, '').trim() || null,
+      hour:
+        row.children.item(6)?.textContent?.replace(/^-$/, '').trim() || null,
+      category: row.children.item(7)?.textContent?.replace(/^-$/, '').trim(),
+      createdAt: row.children.item(9)?.textContent?.replace(/^-$/, '').trim(),
+      updatedAt: row.children.item(10)?.textContent?.replace(/^-$/, '').trim(),
+      content: convertNodesToMDText(row.children.item(8)?.childNodes).trim(),
     }));
 
   if (result.some((item) => isLeft(lectureInformation.decode(item))))
