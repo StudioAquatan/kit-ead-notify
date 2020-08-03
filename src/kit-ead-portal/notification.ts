@@ -52,7 +52,7 @@ export const fetchNotifications = async (proxy: KitShibbolethProxy) => {
           ? convertNodesToMDText(descNode.childNodes)
           : undefined,
         url:
-          titleNode?.nodeType === 3 && (titleNode as Element).tagName === 'A'
+          titleNode?.nodeType === 1 && (titleNode as Element).tagName === 'A'
             ? (titleNode as Element).getAttribute('href')
             : undefined,
       };
