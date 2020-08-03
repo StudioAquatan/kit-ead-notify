@@ -13,10 +13,10 @@ export class LectureInfoEntity extends BaseEntity {
   @PrimaryGeneratedColumn('increment')
   public id = 0;
 
-  @Column('varchar', { length: 16 })
+  @Column('varchar', { length: 32 })
   public faculty = '';
 
-  @Column('varchar', { length: 8 })
+  @Column('varchar', { length: 32 })
   public semester = '';
 
   @Column('varchar', { length: 128, nullable: true })
@@ -25,13 +25,13 @@ export class LectureInfoEntity extends BaseEntity {
   @Column('varchar', { length: 128, nullable: true })
   public teacher: string | null = '';
 
-  @Column('varchar', { length: 8, nullable: true })
+  @Column('varchar', { length: 32, nullable: true })
   public day: string | null = '';
 
-  @Column('varchar', { length: 8, nullable: true })
+  @Column('varchar', { length: 32, nullable: true })
   public hour: string | null = '';
 
-  @Column('varchar', { length: 16 })
+  @Column('varchar', { length: 32 })
   public category = '';
 
   @Column('text')
@@ -77,27 +77,8 @@ export class LectureInfoEntity extends BaseEntity {
         hour: item.hour,
         category: item.category,
         createdAt: parsedCreatedDate.toFormat('yyyy-MM-dd'),
+        content: item.content,
       },
     });
-  }
-
-  public merge(item: LectureInformation) {
-    const parsedUpdatedDate = DateTime.fromString(item.updatedAt, 'yyyy/M/d');
-    if (!parsedUpdatedDate.isValid) throw new Error('invalid updated date');
-
-    const updatedAt = DateTime.fromString(this.updatedAt, 'yyyy-MM-dd');
-
-    let modified = false;
-    if (!updatedAt.hasSame(parsedUpdatedDate, 'day')) {
-      this.updatedAt = parsedUpdatedDate.toFormat('yyyy-MM-dd');
-      modified = true;
-    }
-
-    if (this.content !== item.content) {
-      this.content = item.content;
-      modified = true;
-    }
-
-    return modified;
   }
 }
