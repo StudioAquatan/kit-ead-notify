@@ -68,7 +68,7 @@ export const notifyNotification = async (info: NotificationEntity) => {
   if (info.url) {
     embed.url = info.url;
   }
-  const res = await fetch(config.webhook.lecture, {
+  const res = await fetch(config.webhook.notification, {
     method: 'POST',
     body: JSON.stringify({
       embeds: [embed],
