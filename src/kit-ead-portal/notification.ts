@@ -22,9 +22,8 @@ export const fetchNotifications = async (proxy: KitShibbolethProxy) => {
   const res = await proxy.fetch('https://portal.student.kit.ac.jp/');
   if (!res.ok) throw new Error('failed to fetch');
 
-  const {
-    window: { document },
-  } = new JSDOM(await res.text());
+  const { window } = new JSDOM(await res.text());
+  const { document } = window;
 
   const result = [].slice
     .apply<NodeListOf<Element> | undefined, Element[]>(
