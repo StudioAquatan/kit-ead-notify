@@ -1,5 +1,5 @@
 import { Store } from 'tough-cookie';
-import FileCookieStore from 'tough-cookie-file-store';
+import { FileCookieStore } from 'tough-cookie-file-store';
 import { notifyLecture, notifyNotification } from './bot';
 import { config } from './config';
 import { connect, LectureInfoEntity, NotificationEntity } from './database';
