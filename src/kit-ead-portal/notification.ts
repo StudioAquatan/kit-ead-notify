@@ -61,5 +61,7 @@ export const fetchNotifications = async (proxy: KitShibbolethProxy) => {
   if (result.some((item) => isLeft(notificationItem.decode(item))))
     throw new Error('invalid data');
 
+  window.close();
+
   return result as NotificationItem[];
 };

@@ -52,5 +52,7 @@ export const fetchLectureInformation = async (proxy: KitShibbolethProxy) => {
   if (result.some((item) => isLeft(lectureInformation.decode(item))))
     throw new Error('invalid data');
 
+  window.close();
+
   return result as LectureInformation[];
 };
