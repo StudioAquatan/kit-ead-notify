@@ -24,7 +24,7 @@
     "jsdom": "^16.4.0",
     "luxon": "^1.25.0",
     "mysql": "^2.18.1",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.1",
     "tough-cookie": "^4.0.0",
     "tough-cookie-file-store": "^2.0.2",
     "typeorm": "^0.2.25"
