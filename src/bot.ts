@@ -3,10 +3,13 @@ import fetch from 'node-fetch';
 import { config } from './config';
 import { LectureInfoEntity, NotificationEntity } from './database';
 
-export const notifyLecture = async (info: LectureInfoEntity) => {
+export const notifyLectureSingle = async (
+  info: LectureInfoEntity,
+  webhook: string,
+) => {
   const updatedAt = DateTime.fromString(info.updatedAt, 'yyyy-MM-dd');
   const createdAt = DateTime.fromString(info.createdAt, 'yyyy-MM-dd');
-  const res = await fetch(config.webhook.lecture, {
+  const res = await fetch(webhook, {
     method: 'POST',
     body: JSON.stringify({
       embeds: [
@@ -52,7 +55,10 @@ export const notifyLecture = async (info: LectureInfoEntity) => {
   }
 };
 
-export const notifyNotification = async (info: NotificationEntity) => {
+export const notifyNotificationSingle = async (
+  info: NotificationEntity,
+  webhook: string,
+) => {
   const publishedAt = DateTime.fromString(info.publishedAt, 'yyyy-MM-dd');
   const embed: Record<string, unknown> = {
     title: `[${info.category}] ${info.title}`,
@@ -68,7 +74,7 @@ export const notifyNotification = async (info: NotificationEntity) => {
   if (info.url) {
     embed.url = info.url;
   }
-  const res = await fetch(config.webhook.notification, {
+  const res = await fetch(webhook, {
     method: 'POST',
     body: JSON.stringify({
       embeds: [embed],
@@ -79,5 +85,17 @@ export const notifyNotification = async (info: NotificationEntity) => {
   });
   if (!res.ok) {
     throw new Error('failed to call hook');
+  }
+};
+
+export const notifyNotification = async (info: NotificationEntity) => {
+  for (const webhook of config.webhook.notification) {
+    await notifyNotificationSingle(info, webhook);
+  }
+};
+
+export const notifyLecture = async (info: LectureInfoEntity) => {
+  for (const webhook of config.webhook.lecture) {
+    await notifyLectureSingle(info, webhook);
   }
 };

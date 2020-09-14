@@ -8,8 +8,8 @@ export const config = {
     password: process.env.KIT_PASSWORD as string,
   },
   webhook: {
-    lecture: process.env.DISCORD_WEBHOOK_LECTURE as string,
-    notification: process.env.DISCORD_WEBHOOK_NOTIFICATION as string,
+    lecture: (process.env.DISCORD_WEBHOOK_LECTURE || '').split(','),
+    notification: (process.env.DISCORD_WEBHOOK_NOTIFICATION || '').split(','),
   },
   cookieFile: process.env.COOKIE_FILE as string,
   stateFile: {
