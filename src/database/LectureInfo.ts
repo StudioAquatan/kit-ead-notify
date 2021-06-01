@@ -19,10 +19,10 @@ export class LectureInfoEntity extends BaseEntity {
   @Column('varchar', { length: 32 })
   public semester = '';
 
-  @Column('varchar', { length: 128, nullable: true })
+  @Column('varchar', { length: 256, nullable: true })
   public subject: string | null = '';
 
-  @Column('varchar', { length: 128, nullable: true })
+  @Column('varchar', { length: 256, nullable: true })
   public teacher: string | null = '';
 
   @Column('varchar', { length: 32, nullable: true })
