@@ -62,9 +62,9 @@ const updateNotificationAndNotify = async (proxy: KitShibbolethProxy) => {
 };
 
 (async () => {
-  await connect();
+  const db = await connect();
 
-  const store = (new FileCookieStore('cookies.json') as unknown) as Store;
+  const store = new FileCookieStore('cookies.json') as unknown as Store;
 
   const kit = new KitShibbolethProxy(
     config.kit.username,
@@ -81,6 +81,9 @@ const updateNotificationAndNotify = async (proxy: KitShibbolethProxy) => {
       await updateNotificationAndNotify(kit);
     } catch (e) {
       console.error(e);
+      if (!db.isConnected) {
+        process.exit(1);
+      }
     } finally {
       await sleep(1000 * 60 * 10);
     }
