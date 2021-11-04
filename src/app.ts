@@ -23,13 +23,8 @@ const updateLectureInfoAndNotify = async (proxy: KitShibbolethProxy) => {
     await entity.save();
 
     if (isNew && dbCount > 0) {
-      try {
-        await notifyLecture(entity);
-      } catch (e) {
-        console.error(e);
-      } finally {
-        await sleep(5000);
-      }
+      await notifyLecture(entity);
+      await sleep(5000);
     }
   }
 };
@@ -50,13 +45,8 @@ const updateNotificationAndNotify = async (proxy: KitShibbolethProxy) => {
     await entity.save();
 
     if (isNew && dbCount > 0) {
-      try {
-        await notifyNotification(entity);
-      } catch (e) {
-        console.error(e);
-      } finally {
-        await sleep(5000);
-      }
+      await notifyNotification(entity);
+      await sleep(5000);
     }
   }
 };
@@ -73,15 +63,18 @@ const updateNotificationAndNotify = async (proxy: KitShibbolethProxy) => {
     store,
   );
 
+  let errorCount = 0;
   for (;;) {
     await kit.loginTo('https://portal.student.kit.ac.jp');
 
     try {
       await updateLectureInfoAndNotify(kit);
       await updateNotificationAndNotify(kit);
+      errorCount = 0;
     } catch (e) {
       console.error(e);
-      if (!db.isConnected) {
+      errorCount++;
+      if (!db.isConnected || errorCount > 3) {
         process.exit(1);
       }
     } finally {
