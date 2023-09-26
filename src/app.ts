@@ -1,5 +1,4 @@
-import { Store } from 'tough-cookie';
-import { FileCookieStore } from 'tough-cookie-file-store';
+import { MemoryCookieStore } from 'tough-cookie';
 import { notifyLecture, notifyNotification } from './bot';
 import { config } from './config';
 import { connect, LectureInfoEntity, NotificationEntity } from './database';
@@ -54,17 +53,15 @@ const updateNotificationAndNotify = async (proxy: KitShibbolethProxy) => {
 (async () => {
   const db = await connect();
 
-  const store = new FileCookieStore('cookies.json') as unknown as Store;
-
-  const kit = new KitShibbolethProxy(
-    config.kit.username,
-    config.kit.password,
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.92 Safari/537.36',
-    store,
-  );
-
   let errorCount = 0;
   for (;;) {
+    const kit = new KitShibbolethProxy(
+      config.kit.username,
+      config.kit.password,
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.92 Safari/537.36',
+      new MemoryCookieStore(),
+    );
+
     await kit.loginTo('https://portal.student.kit.ac.jp');
 
     try {
