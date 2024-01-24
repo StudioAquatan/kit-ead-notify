@@ -62,9 +62,9 @@ const updateNotificationAndNotify = async (proxy: KitShibbolethProxy) => {
       new MemoryCookieStore(),
     );
 
-    await kit.loginTo('https://portal.student.kit.ac.jp');
-
     try {
+      await kit.loginTo('https://portal.student.kit.ac.jp');
+
       await updateLectureInfoAndNotify(kit);
       await updateNotificationAndNotify(kit);
       errorCount = 0;
